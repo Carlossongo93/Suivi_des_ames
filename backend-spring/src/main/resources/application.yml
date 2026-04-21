@@ -1,12 +1,12 @@
- spring:
+spring:
   datasource:
-    url: ${DATABASE_URL} # Ex: jdbc:postgresql://ep-divine-cloud-1234.eu-central-1.aws.neon.tech/troupeau
+    url: ${DATABASE_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate # La création des tables est strictement réservée à Flyway
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -17,7 +17,7 @@
 app:
   security:
     jwt:
-      secret: ${JWT_SECRET} # Clé cryptographique longue
-      expiration: 86400000 # 24 heures en millisecondes
+      secret: ${JWT_SECRET}
+      expiration: 86400000
   cors:
-    allowed-origins: ${FRONTEND_URL} # Ex: https://letroupeau.vercel.app
+    allowed-origins: ${FRONTEND_URL}
