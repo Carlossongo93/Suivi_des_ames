@@ -1,0 +1,54 @@
+name: Backend CI/CD (Spring Boot to PaaS)
+
+# Ce workflow se déclenche uniquement si des fichiers dans /backend-spring sont modifiés
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend-spring/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend-spring/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend-spring
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build and Test with Gradle
+      run: ./gradlew build
+      # Note : En CI, il est préférable de mocker la BDD ou d'utiliser Testcontainers
+      # pour que les tests passant ne dépendent pas d'une vraie base PostgreSQL distante.
+
+  # Le job de déploiement ne s'exécute que si la compilation (build) a réussi
+  # et que nous sommes sur la branche 'main' (pas sur une PR).
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # L'étape de déploiement dépendra fortement du PaaS choisi (Railway, Render, Koyeb).
+      # Voici un exemple générique utilisant une image Docker ou la CLI d'un fournisseur.
+      - name: Deploy to PaaS (Example: Render)
+        env:
+          # Secret stocké dans GitHub (Settings > Secrets and variables > Actions)
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Déclenchement du déploiement via Webhook..."
+          curl "$deploy_url"

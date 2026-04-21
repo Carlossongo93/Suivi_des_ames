@@ -1,0 +1,41 @@
+name: Frontend CI (Vue.js to Vercel/Netlify)
+
+# Ce workflow se déclenche uniquement si des fichiers dans /frontend-vue sont modifiés
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend-vue/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend-vue/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend-vue
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './frontend-vue/package-lock.json'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build production app
+      run: npm run build
+      
+    # Note importante :
+    # Si vous utilisez Vercel ou Netlify, ils possèdent leur propre intégration GitHub.
+    # En connectant votre dépôt GitHub directement à Vercel, Vercel gérera le build et le déploiement
+    # automatiquement. Ce workflow GitHub Action sert principalement ici à vérifier 
+    # que le code compile (lint/build) avant que Vercel ne prenne le relais.
