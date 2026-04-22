@@ -1,0 +1,1 @@
+ALTER TABLE contacts ALTER COLUMN team_id TYPE bigint;
