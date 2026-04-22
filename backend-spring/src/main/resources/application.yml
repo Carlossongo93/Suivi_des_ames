@@ -4,12 +4,19 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    # Paramètres HikariCP optimisés pour Neon.tech (Serverless)
+    hikari:
+      max-lifetime: 240000       # 4 minutes (avant que Neon ne coupe la connexion)
+      connection-timeout: 20000  # 20 secondes d'attente si la base doit se réveiller
+      keepalive-time: 40000      # Pings toutes les 40s pour maintenir la connexion active
+  
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -21,3 +28,6 @@ app:
       expiration: 86400000
   cors:
     allowed-origins: ${FRONTEND_URL}
+    allowed-methods: GET, POST, PUT, DELETE
+    allowed-headers: Authorization, Content-Type
+    max-age: 3600

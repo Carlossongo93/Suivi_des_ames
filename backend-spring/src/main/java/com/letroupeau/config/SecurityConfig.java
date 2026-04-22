@@ -46,6 +46,7 @@ public class SecurityConfig {
             // 3. Règles de routage
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Routes publiques (login)
+                .requestMatchers("/error").permitAll() // <-- LA LIGNE MAGIQUE À AJOUTER
                 .anyRequest().authenticated() // Toutes les autres requêtes nécessitent d'être connecté
             )
             
