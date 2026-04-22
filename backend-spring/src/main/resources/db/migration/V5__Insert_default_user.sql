@@ -1,8 +1,7 @@
--- Insertion d'un utilisateur administrateur par défaut
--- Mot de passe en clair : password123
--- Note : L'ID est souvent auto-incrémenté, donc on ne le précise pas si ta table est configurée ainsi.
+-- Insertion de l'utilisateur administrateur par défaut
+-- Mot de passe en clair correspondant au hash : password123
 
-INSERT INTO users (email, password, name, role)
+INSERT INTO users (email, password, full_name, role)
 VALUES (
     'admin@letroupeau.com', 
     '$2a$10$8.UnVuG9HHgffUDAlk8q7Ou5HEpSDRhK2z/Vv2A6.N2p4V.DeXpY2', 
