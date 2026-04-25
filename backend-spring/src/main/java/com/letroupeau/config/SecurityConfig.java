@@ -20,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Permet d'utiliser @PreAuthorize dans nos contrôleurs
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -28,6 +28,15 @@ public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
+
+    @Value("${app.cors.allowed-methods}")
+    private String allowedMethods;
+
+    @Value("${app.cors.allowed-headers}")
+    private String allowedHeaders;
+
+    @Value("${app.cors.max-age}")
+    private long maxAge;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -37,56 +46,53 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Configuration CORS stricte (Axe A de l'ADD)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // 2. Désactivation CSRF (inutile car nous utilisons des JWT et non des cookies de session)
             .csrf(csrf -> csrf.disable())
-            
-            // 3. Règles de routage
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Routes publiques (login)
-                .requestMatchers("/error").permitAll() // <-- LA LIGNE MAGIQUE À AJOUTER
-                .anyRequest().authenticated() // Toutes les autres requêtes nécessitent d'être connecté
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().authenticated()
             )
-            
-            // 4. Statelessness Absolu (Aucune session n'est créée sur le serveur)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // 5. Providers et Filtres
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Bean de configuration CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        System.out.println("✅ CORS Allowed Origins: " + allowedOrigins);
-        
-        // On n'accepte QUE l'URL définie dans les variables d'environnement (ex: l'URL Vercel)
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
-        
-        // On autorise les méthodes classiques
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        
-        // On autorise l'en-tête Authorization pour notre JWT
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        
-        // ✅ AJOUTER CECI : Headers que le frontend peut lire
+        // Parse les origines depuis la variable d'environnement
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
+
+        // Parse les méthodes
+        configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
+
+        // Parse les headers
+        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
+
+        // Headers exposés
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        
-        // ✅ AJOUTER CECI : Permettre les credentials
+
+        // Credentials
         configuration.setAllowCredentials(true);
-        
-        // ✅ AJOUTER CECI : Cache le preflight pendant 1 heure
-        configuration.setMaxAge(3600L);
-        
+
+        // Max age
+        configuration.setMaxAge(maxAge);
+
+        // 🔍 DEBUG - Affiche la configuration
+        System.out.println("✅ CORS Configuration:");
+        System.out.println("   Allowed Origins: " + origins);
+        System.out.println("   Allowed Methods: " + Arrays.asList(allowedMethods.split(",")));
+        System.out.println("   Allowed Headers: " + Arrays.asList(allowedHeaders.split(",")));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+        
         return source;
     }
 }
