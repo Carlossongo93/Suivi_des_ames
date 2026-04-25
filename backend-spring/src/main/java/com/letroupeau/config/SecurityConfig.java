@@ -64,6 +64,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
+        System.out.println("✅ CORS Allowed Origins: " + allowedOrigins);
         
         // On n'accepte QUE l'URL définie dans les variables d'environnement (ex: l'URL Vercel)
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
