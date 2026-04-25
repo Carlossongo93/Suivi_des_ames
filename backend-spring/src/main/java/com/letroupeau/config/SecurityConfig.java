@@ -69,10 +69,19 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         
         // On autorise les méthodes classiques
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         
         // On autorise l'en-tête Authorization pour notre JWT
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        
+        // ✅ AJOUTER CECI : Headers que le frontend peut lire
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        
+        // ✅ AJOUTER CECI : Permettre les credentials
+        configuration.setAllowCredentials(true);
+        
+        // ✅ AJOUTER CECI : Cache le preflight pendant 1 heure
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
