@@ -11,16 +11,34 @@ const api = axios.create({
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('jwt_token');
     
-    // Si pas de token ET route protégée → redirection immédiate
-    if (!token && config.url !== '/login' && config.url !== '/register') {
+    // Routes publiques (login, register) → pas de vérification
+    if (config.url === '/auth/login' || config.url === '/auth/register') {
+        return config;
+    }
+    
+    // Routes protégées sans token → redirection
+    if (!token) {
         window.location.href = '/login';
         return Promise.reject(new Error('Token manquant'));
     }
     
+    // Ajouter le token
     config.headers.Authorization = `Bearer ${token}`;
     return config;
 }, error => {
     return Promise.reject(error);
 });
+
+// Intercepteur : Gère les erreurs d'authentification
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem('jwt_token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default api;
