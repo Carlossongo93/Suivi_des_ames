@@ -4,17 +4,16 @@
     <nav class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <!-- Icône temporaire, à remplacer par ton vrai logo plus tard -->
           <span class="logo-icon">🔥</span> 
           <h2>Le Troupeau</h2>
         </div>
-        <!-- Le badge ne s'affiche que si l'utilisateur est bien chargé -->
+        <!-- Badge de rôle dynamique -->
         <span class="role-badge" v-if="authStore.user && displayRole" :class="roleClass">
           {{ displayRole }}
         </span>
       </div>
 
-      <!-- BOUTON D'ACTION PRINCIPAL (CTA) -->
+      <!-- BOUTON D'ACTION PRINCIPAL -->
       <div class="sidebar-cta">
         <button @click="goToNewContact" class="btn-primary">
           ➕ Nouveau Contact
@@ -29,21 +28,18 @@
           </router-link>
         </li>
         
-        <!-- Accessible à tout le monde (EPIC-2) -->
         <li>
           <router-link to="/contacts" active-class="active">
             📒 Mes Contacts
           </router-link>
         </li>
 
-        <!-- Accessible uniquement aux Leaders et Admins (US-2.5) -->
         <li v-if="isLeaderOrAdmin">
           <router-link to="/team" active-class="active">
             👥 Mon Équipe
           </router-link>
         </li>
 
-        <!-- Accessible uniquement aux Admins (EPIC-5) -->
         <li v-if="isAdmin">
           <router-link to="/admin" active-class="active">
             ⚙️ Administration
@@ -51,7 +47,7 @@
         </li>
       </ul>
 
-      <!-- PIED DE PAGE -->
+      <!-- PIED DE PAGE (Déconnexion) -->
       <div class="sidebar-footer">
         <div class="user-info" v-if="authStore.user">
           <span class="user-email">{{ authStore.user.sub }}</span>
@@ -64,15 +60,8 @@
 
     <!-- CONTENU PRINCIPAL -->
     <main class="main-content">
-      <!-- En-tête supérieur dynamique -->
-      <header class="top-header">
-        <h1>{{ currentRouteName }}</h1>
-      </header>
-      
-      <!-- C'est ici que Vue Router injectera les autres pages (Dashboard, Contacts, etc.) -->
-      <div class="page-container">
-        <router-view></router-view>
-      </div>
+      <!-- Le titre en double a été supprimé pour laisser tes vues gérer leur header -->
+      <router-view></router-view>
     </main>
   </div>
 </template>
@@ -80,34 +69,28 @@
 <script setup>
 import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-// Initialisation des outils Vue
 const authStore = useAuthStore();
 const router = useRouter();
-const route = useRoute();
 
-// --- GESTION DES RÔLES & PERMISSIONS ---
-// Sécurité : On s'assure de ne pas crasher si authStore.user est temporairement null
+// --- GESTION DES RÔLES ---
 const userRole = computed(() => authStore.user?.role || '');
 
-// Affichage propre du rôle (enlève le "ROLE_" proprement)
 const displayRole = computed(() => {
   return userRole.value ? userRole.value.replace('ROLE_', '') : '';
 });
 
-// Logique d'autorisation stricte pour l'affichage des menus
 const isLeaderOrAdmin = computed(() => ['ROLE_LEADER', 'ROLE_ADMIN'].includes(userRole.value));
 const isAdmin = computed(() => userRole.value === 'ROLE_ADMIN');
 
-// Couleur dynamique du badge selon le rôle
 const roleClass = computed(() => {
   if (isAdmin.value) return 'badge-admin';
   if (isLeaderOrAdmin.value) return 'badge-leader';
   return 'badge-member';
 });
 
-// --- ACTIONS DES BOUTONS ---
+// --- ACTIONS ---
 const handleLogout = () => {
   authStore.logout();
   router.push('/login');
@@ -116,45 +99,29 @@ const handleLogout = () => {
 const goToNewContact = () => {
   router.push('/contacts/new'); 
 };
-
-// --- TITRE DYNAMIQUE DE LA PAGE ---
-const currentRouteName = computed(() => {
-  switch (route.path) {
-    case '/dashboard': return 'Tableau de Bord';
-    case '/contacts': return 'Mes Contacts';
-    case '/team': return 'Mon Équipe';
-    case '/admin': return 'Administration';
-    case '/contacts/new': return 'Nouveau Contact';
-    default: return 'Le Troupeau';
-  }
-});
 </script>
 
 <style scoped>
-/* VARIABLES DE COULEURS (Inspirées de la charte du logo) */
-:root {
-  --primary-green: #1a8f2e; /* Vert principal du logo */
-  --primary-green-dark: #126620;
-  --accent-red: #e62222; /* Rouge des flammes */
-  --accent-red-dark: #b81b1b;
-  --sidebar-bg: #0f172a; /* Bleu nuit profond */
-  --sidebar-hover: #1e293b;
-  --bg-light: #f8fafc; /* Fond gris très clair pour l'application */
-  --text-main: #334155;
+/* Reset pour éviter les débordements */
+* {
+  box-sizing: border-box;
 }
 
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--bg-light);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100vw;
+  background-color: #f3f4f6; /* Gris très clair pour le fond de l'application */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
 }
 
 /* --- BARRE LATÉRALE (SIDEBAR) --- */
 .sidebar {
   width: 260px;
-  background-color: var(--sidebar-bg);
-  color: white;
+  flex-shrink: 0; /* Empêche la sidebar de se compresser */
+  background-color: #111827; /* Bleu nuit très profond */
+  color: #f9fafb;
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -163,7 +130,7 @@ const currentRouteName = computed(() => {
 
 .sidebar-header {
   padding: 24px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid #374151;
 }
 
 .brand {
@@ -176,6 +143,7 @@ const currentRouteName = computed(() => {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
+  color: #ffffff;
   letter-spacing: 0.5px;
 }
 
@@ -188,19 +156,22 @@ const currentRouteName = computed(() => {
   font-size: 0.75rem;
   font-weight: bold;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
-.badge-admin { background-color: var(--accent-red); color: white; }
-.badge-leader { background-color: #f59e0b; color: white; } /* Orange pour distinguer le Leader */
-.badge-member { background-color: var(--primary-green); color: white; }
+/* Rouge pour Admin, Orange pour Leader, Vert logo pour Membre */
+.badge-admin { background-color: #e62222; color: white; }
+.badge-leader { background-color: #f59e0b; color: white; }
+.badge-member { background-color: #1a8f2e; color: white; }
 
 /* --- BOUTON NOUVEAU CONTACT --- */
 .sidebar-cta {
   padding: 20px;
 }
+
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background-color: var(--primary-green);
+  background-color: #1a8f2e; /* Vert principal de ton logo */
   color: white;
   border: none;
   border-radius: 8px;
@@ -210,8 +181,9 @@ const currentRouteName = computed(() => {
   transition: all 0.2s ease;
   box-shadow: 0 4px 6px rgba(26, 143, 46, 0.2);
 }
+
 .btn-primary:hover {
-  background-color: var(--primary-green-dark);
+  background-color: #126620; /* Vert plus foncé au survol */
   transform: translateY(-1px);
 }
 
@@ -222,97 +194,85 @@ const currentRouteName = computed(() => {
   margin: 0;
   flex-grow: 1;
 }
+
 .nav-links li {
   margin-bottom: 4px;
 }
+
 .nav-links a {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 24px;
-  color: #cbd5e1;
+  color: #9ca3af; /* Gris clair */
   text-decoration: none;
   font-size: 0.95rem;
   transition: all 0.2s;
   border-left: 4px solid transparent;
 }
+
 .nav-links a:hover {
-  background-color: var(--sidebar-hover);
+  background-color: #1f2937;
   color: white;
 }
+
 .nav-links a.active {
-  background-color: var(--sidebar-hover);
+  background-color: #1f2937;
   color: white;
-  border-left: 4px solid var(--primary-green);
+  border-left: 4px solid #1a8f2e; /* Ligne verte pour le menu actif */
   font-weight: 600;
 }
 
 /* --- PIED DE PAGE SIDEBAR --- */
 .sidebar-footer {
   padding: 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  background-color: rgba(0,0,0,0.2);
+  border-top: 1px solid #374151;
+  background-color: #0f172a;
 }
+
 .user-email {
   display: block;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #9ca3af;
   margin-bottom: 15px;
   word-break: break-all;
 }
+
 .btn-logout {
   width: 100%;
   padding: 10px;
   background-color: transparent;
-  color: #cbd5e1;
-  border: 1px solid rgba(255,255,255,0.2);
+  color: #9ca3af;
+  border: 1px solid #4b5563;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
 }
+
 .btn-logout:hover {
   background-color: rgba(230, 34, 34, 0.1);
-  color: var(--accent-red);
-  border-color: var(--accent-red);
+  color: #e62222; /* Rouge du logo au survol */
+  border-color: #e62222;
 }
 
 /* --- ZONE DE CONTENU PRINCIPALE --- */
 .main-content {
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
+  padding: 2rem;
   overflow-y: auto;
 }
 
-.top-header {
-  background-color: white;
-  padding: 20px 30px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-}
-.top-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--text-main);
-}
-
-.page-container {
-  padding: 0 30px 30px 30px;
-  max-width: 1200px;
-  width: 100%;
-}
-
-/* --- RESPONSIVITÉ POUR TÉLÉPHONES --- */
+/* --- RESPONSIVITÉ (Mobiles) --- */
 @media (max-width: 768px) {
   .app-layout { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; }
+  .sidebar { width: 100%; height: auto; flex-shrink: 1; }
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; }
   .sidebar-cta { padding: 10px 20px; }
   .nav-links { display: flex; flex-wrap: wrap; }
   .nav-links li { width: 50%; }
   .nav-links a { justify-content: center; border-left: none; border-bottom: 3px solid transparent; }
-  .nav-links a.active { border-left: none; border-bottom: 3px solid var(--primary-green); }
-  .page-container { padding: 0 15px 15px 15px; }
+  .nav-links a.active { border-left: none; border-bottom: 3px solid #1a8f2e; }
+  .main-content { padding: 1rem; }
 }
 </style>
