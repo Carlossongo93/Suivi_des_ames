@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 // Imports des vues
-import Layout from '../components/Layout.vue';
+import Layout from '../views/Layout.vue';
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Contacts from '../views/Contacts.vue';
