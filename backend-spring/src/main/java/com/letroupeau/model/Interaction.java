@@ -6,42 +6,47 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "interactions")
 public class Interaction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private String type; // Ex: APPEL, SMS, VISITE, WHATSAPP
+
+    @Column(name = "sub_type")
+    private String subType; // Ex: PRIERE, EXHORTATION, NOUVELLES
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
-    @Column(nullable = false)
-    private String type; // ex: CALL, VISIT, MESSAGE
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    private String notes;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
-    @Column(name = "health_score")
-    private Integer healthScore;
-
-    @Column(name = "interaction_date", nullable = false)
-    private LocalDateTime interactionDate;
-
-    // Getters et Setters
+    // --- GETTERS & SETTERS ---
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Contact getContact() { return contact; }
-    public void setContact(Contact contact) { this.contact = contact; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+    public String getSubType() { return subType; }
+    public void setSubType(String subType) { this.subType = subType; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-    public Integer getHealthScore() { return healthScore; }
-    public void setHealthScore(Integer healthScore) { this.healthScore = healthScore; }
-    public LocalDateTime getInteractionDate() { return interactionDate; }
-    public void setInteractionDate(LocalDateTime interactionDate) { this.interactionDate = interactionDate; }
+    public Contact getContact() { return contact; }
+    public void setContact(Contact contact) { this.contact = contact; }
+    public User getCreatedBy() { return createdBy; }
+    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }
