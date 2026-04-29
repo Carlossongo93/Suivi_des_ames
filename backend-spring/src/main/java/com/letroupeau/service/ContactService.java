@@ -1,13 +1,11 @@
 package com.letroupeau.service;
 
+import com.letroupeau.dto.ContactRequest;
 import com.letroupeau.model.Contact;
-import com.letroupeau.model.Role;
 import com.letroupeau.model.User;
 import com.letroupeau.repository.ContactRepository;
 import com.letroupeau.repository.UserRepository;
-import com.letroupeau.dto.ContactRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,30 +21,14 @@ public class ContactService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * MÉTHODE CRITIQUE (Axe B ADD) : Récupération isolée des contacts.
-     * La sécurité est gérée côté serveur. Le Frontend ne peut pas tricher.
-     */
     public List<Contact> getAllContactsForCurrentUser() {
         User currentUser = getCurrentUser();
-
-        // Règle Métier 1 : L'Admin voit tout le troupeau
-        if (currentUser.getRole() == Role.ADMIN) {
-            return contactRepository.findAll();
-        } 
-        // Règle Métier 2 : Le Leader ne voit QUE son équipe
-        else if (currentUser.getRole() == Role.LEADER && currentUser.getTeam() != null) {
+        if (currentUser.getTeam() != null) {
             return contactRepository.findByTeamId(currentUser.getTeam().getId());
         }
-
-        // Règle par défaut : un simple membre ne voit personne (ou retourne une liste vide)
         return List.of();
     }
 
-    /**
-     * CRÉATION D'UN CONTACT (US-2.1)
-     * Assigne automatiquement l'équipe de l'utilisateur connecté au nouveau contact.
-     */
     public Contact createContact(ContactRequest request) {
         User currentUser = getCurrentUser();
 
@@ -60,18 +42,39 @@ public class ContactService {
         contact.setPhone(request.phone());
         contact.setAddress(request.address());
         
-        // Magie : On déduit l'équipe automatiquement sans faire confiance au Frontend
+        // Assigne automatiquement l'équipe du créateur
         contact.setTeam(currentUser.getTeam());
 
         return contactRepository.save(contact);
     }
 
-    /**
-     * Helper pour récupérer l'utilisateur actuellement connecté via le token JWT
-     */
+    public Contact getContactById(Long id) {
+        User currentUser = getCurrentUser();
+        Contact contact = contactRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contact introuvable"));
+                
+        // SÉCURITÉ : Vérifie que le contact appartient bien à l'équipe de l'utilisateur connecté
+        if (contact.getTeam() == null || !contact.getTeam().getId().equals(currentUser.getTeam().getId())) {
+            throw new RuntimeException("Accès refusé : Ce contact n'appartient pas à votre équipe.");
+        }
+        return contact;
+    }
+
+    public Contact updateContact(Long id, ContactRequest request) {
+        // On réutilise getContactById pour bénéficier de la sécurité qui vérifie l'équipe
+        Contact contact = getContactById(id); 
+        
+        contact.setFirstName(request.firstName());
+        contact.setLastName(request.lastName());
+        contact.setPhone(request.phone());
+        contact.setAddress(request.address());
+        
+        return contactRepository.save(contact);
+    }
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé dans le contexte de sécurité"));
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
 }
