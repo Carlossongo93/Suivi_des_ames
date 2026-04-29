@@ -4,6 +4,7 @@ import Login from '../views/Login.vue';
 import Layout from '../views/Layout.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Contacts from '../views/Contacts.vue';
+import NewContact from '../views/NewContact.vue';
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
                 path: 'contacts',
                 name: 'Contacts',
                 component: Contacts
+            },
+            {
+                path: 'contacts/new',
+                name: 'NewContact',
+                component: NewContact
             }
         ]
     }

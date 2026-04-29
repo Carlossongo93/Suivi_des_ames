@@ -5,6 +5,7 @@ import com.letroupeau.model.Role;
 import com.letroupeau.model.User;
 import com.letroupeau.repository.ContactRepository;
 import com.letroupeau.repository.UserRepository;
+import com.letroupeau.dto.ContactRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,29 @@ public class ContactService {
 
         // Règle par défaut : un simple membre ne voit personne (ou retourne une liste vide)
         return List.of();
+    }
+
+    /**
+     * CRÉATION D'UN CONTACT (US-2.1)
+     * Assigne automatiquement l'équipe de l'utilisateur connecté au nouveau contact.
+     */
+    public Contact createContact(ContactRequest request) {
+        User currentUser = getCurrentUser();
+
+        if (currentUser.getTeam() == null) {
+            throw new IllegalStateException("Impossible de créer un contact : Vous n'êtes assigné à aucune équipe.");
+        }
+
+        Contact contact = new Contact();
+        contact.setFirstName(request.firstName());
+        contact.setLastName(request.lastName());
+        contact.setPhone(request.phone());
+        contact.setAddress(request.address());
+        
+        // Magie : On déduit l'équipe automatiquement sans faire confiance au Frontend
+        contact.setTeam(currentUser.getTeam());
+
+        return contactRepository.save(contact);
     }
 
     /**
