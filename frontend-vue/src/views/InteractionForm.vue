@@ -61,7 +61,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import axios from 'axios';
+import api from '../services/api';
 
 // Définition des événements que ce composant peut envoyer à son parent
 const emit = defineEmits(['close', 'interaction-added']);
@@ -93,7 +93,8 @@ const submitInteraction = async () => {
 
   try {
     // ⚠️ Remplacez l'URL par l'endpoint exact de votre backend Spring Boot
-    const response = await axios.post('/api/interactions', formData);
+    const response = await api.post('/interactions', formData); 
+// Note : Mettez '/api/interactions' si votre fichier api.js ne gère pas déjà le '/api;
     
     // On prévient le composant parent que l'enregistrement a réussi
     emit('interaction-added', response.data);
