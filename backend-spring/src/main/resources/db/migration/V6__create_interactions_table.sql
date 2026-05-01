@@ -6,7 +6,7 @@ ALTER TABLE contacts ADD COLUMN last_interaction_at TIMESTAMP;
 
 -- 3. Création de la table des interactions (Version Finale)
 CREATE TABLE interactions (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     type VARCHAR(50) NOT NULL,
     sub_type VARCHAR(100),
     notes TEXT,
