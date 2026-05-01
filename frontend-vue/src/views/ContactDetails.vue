@@ -42,7 +42,7 @@
           <!-- Affichage du formulaire de création si showForm est vrai -->
           <div v-if="showForm" class="modal-overlay">
             <InteractionForm 
-            ::contact-id="contact.id"
+            :contact-id="Number(route.params.id)"
             @close="showForm = false" 
             @interaction-added="handleNewInteraction" 
             />

@@ -81,6 +81,7 @@ const errorMessage = ref('');
 const formData = reactive({
   type: 'APPEL',
   // Initialise la date à l'instant présent au format requis par l'input datetime-local
+  subType: '',
   date: new Date().toISOString().slice(0, 16),
   notes: '',
   contactId: props.contactId
