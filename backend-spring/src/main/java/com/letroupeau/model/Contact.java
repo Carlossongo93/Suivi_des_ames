@@ -26,6 +26,9 @@ public class Contact {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "last_interaction_at")
+    private LocalDateTime lastInteractionAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -45,4 +48,6 @@ public class Contact {
     public Team getTeam() { return team; }
     public void setTeam(Team team) { this.team = team; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getLastInteractionAt() { return lastInteractionAt; }
+    public void setLastInteractionAt(LocalDateTime lastInteractionAt) { this.lastInteractionAt = lastInteractionAt; }
 }
