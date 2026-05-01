@@ -93,8 +93,9 @@ const submitInteraction = async () => {
 
   try {
     // ⚠️ Remplacez l'URL par l'endpoint exact de votre backend Spring Boot
-    const response = await api.post('/interactions', formData); 
-// Note : Mettez '/api/interactions' si votre fichier api.js ne gère pas déjà le '/api;
+    // Par celle-ci (qui correspond exactement à votre Controller Java) :
+    const response = await api.post(`/contacts/${props.contactId}/interactions`, formData); 
+    // Note : Mettez '/api/interactions' si votre fichier api.js ne gère pas déjà le '/api;
     
     // On prévient le composant parent que l'enregistrement a réussi
     emit('interaction-added', response.data);
