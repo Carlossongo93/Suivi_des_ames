@@ -65,7 +65,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
-import InteractionForm from '@/views/InteractionForm.vue'; // Ajustez le chemin
+import InteractionForm from '../InteractionForm.vue'; // Ajustez le chemin
 
 const showForm = ref(false); // Le fameux état qui manquait à l'appel !
 const currentContactId = ref(1); // L'ID du contact actuel
