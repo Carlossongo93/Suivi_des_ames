@@ -39,6 +39,14 @@
         <div class="card-header">
           <h2>Historique du suivi</h2>
           <button class="btn-primary btn-sm">➕ Interaction</button>
+          <!-- Affichage du formulaire de création si showForm est vrai -->
+          <div v-if="showForm" class="modal-overlay">
+            <InteractionForm 
+            :contact-id="currentContactId"
+            @close="showForm = false" 
+            @interaction-added="handleNewInteraction" 
+            />
+        </div>
         </div>
         <div class="timeline-content">
           <!-- État vide en attendant l'implémentation de la table Interactions -->
@@ -57,6 +65,16 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
+import { ref } from 'vue';
+import InteractionForm from '@/components/InteractionForm.vue'; // Ajustez le chemin
+
+const showForm = ref(false); // Le fameux état qui manquait à l'appel !
+const currentContactId = ref(1); // L'ID du contact actuel
+
+const handleNewInteraction = (newInteractionData) => {
+  console.log("Interaction enregistrée avec succès !", newInteractionData);
+  // Ici, vous pouvez ajouter l'interaction à votre liste locale pour rafraîchir l'affichage
+};
 
 const route = useRoute();
 const router = useRouter();
