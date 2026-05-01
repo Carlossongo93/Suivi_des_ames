@@ -65,7 +65,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
-import { ref } from 'vue';
 import InteractionForm from '@/views/InteractionForm.vue'; // Ajustez le chemin
 
 const showForm = ref(false); // Le fameux état qui manquait à l'appel !
