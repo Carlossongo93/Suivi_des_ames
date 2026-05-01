@@ -38,11 +38,11 @@
       <div class="details-card timeline-card">
         <div class="card-header">
           <h2>Historique du suivi</h2>
-          <button class="btn-primary btn-sm">➕ Interaction</button>
+          <button class="btn-primary btn-sm" @click="showForm = true">➕ Interaction</button>
           <!-- Affichage du formulaire de création si showForm est vrai -->
           <div v-if="showForm" class="modal-overlay">
             <InteractionForm 
-            :contact-id="currentContactId"
+            ::contact-id="Number(route.params.id)"
             @close="showForm = false" 
             @interaction-added="handleNewInteraction" 
             />
@@ -65,7 +65,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../services/api';
-import InteractionForm from '../InteractionForm.vue'; // Ajustez le chemin
+import InteractionForm from '../views/InteractionForm.vue';
 
 const showForm = ref(false); // Le fameux état qui manquait à l'appel !
 const currentContactId = ref(1); // L'ID du contact actuel
