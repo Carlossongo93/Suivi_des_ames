@@ -1,7 +1,10 @@
--- Ajout de la date de dernière interaction sur la table des contacts
+-- 1. Suppression de la table "brouillon" générée lors de la V1
+DROP TABLE IF EXISTS interactions;
+
+-- 2. Ajout de la date de dernière interaction sur la table des contacts
 ALTER TABLE contacts ADD COLUMN last_interaction_at TIMESTAMP;
 
--- Création de la table des interactions
+-- 3. Création de la table des interactions (Version Finale)
 CREATE TABLE interactions (
     id SERIAL PRIMARY KEY,
     type VARCHAR(50) NOT NULL,
