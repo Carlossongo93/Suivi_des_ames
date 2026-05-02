@@ -83,7 +83,6 @@ import api from '../services/api';
 import InteractionForm from '../views/InteractionForm.vue';
 
 const showForm = ref(false); // Le fameux état qui manquait à l'appel !
-const currentContactId = ref(1); // L'ID du contact actuel
 
 const handleNewInteraction = (newInteractionData) => {
   showForm.value = false; // Ferme la popup
@@ -97,7 +96,7 @@ const router = useRouter();
 const contact = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
-const interactions = ref([]); // <-- Ajoutez cette ligne sous vos autres const ref()
+const interactions = ref([]); // Liste des interactions
 
 onMounted(async () => {
   try {
@@ -105,7 +104,7 @@ onMounted(async () => {
     const response = await api.get(`/contacts/${route.params.id}`);
     contact.value = response.data;
     
-    // 2. Récupération de l'historique des interactions (NOUVEAU)
+    // 2. Récupération de l'historique des interactions
     const interactionsResponse = await api.get(`/contacts/${route.params.id}/interactions`);
     interactions.value = interactionsResponse.data;
     
@@ -120,15 +119,26 @@ onMounted(async () => {
 const goBack = () => router.push('/contacts');
 const goToEdit = () => router.push(`/contacts/${contact.value.id}/edit`);
 
+// Traducteur de date robuste (Tableau Spring Boot -> Date JS)
 const parseDate = (dateVal) => {
   if (!dateVal) return null;
-  if (Array.isArray(dateVal)) return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0);
-  return new Date(dateVal);
+  if (Array.isArray(dateVal)) {
+    return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0, dateVal[5] || 0);
+  }
+  const d = new Date(dateVal);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+// Fonction manquante ajoutée pour corriger l'écran blanc
+const formatDate = (dateVal) => {
+  const date = parseDate(dateVal);
+  if (!date) return '';
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
 const formatDateTime = (dateVal) => {
   const date = parseDate(dateVal);
-  if (!date || isNaN(date)) return '';
+  if (!date) return '';
   return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) 
        + ' à ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute:'2-digit' });
 };

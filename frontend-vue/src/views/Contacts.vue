@@ -27,7 +27,6 @@
         <span class="filter-icon">📍</span>
         <select v-model="selectedQuarter" class="filter-input">
           <option value="">Tous les quartiers</option>
-          <!-- Menu généré dynamiquement depuis les vraies adresses de la BDD -->
           <option v-for="quartier in availableQuarters" :key="quartier" :value="quartier">
             {{ quartier }}
           </option>
@@ -88,15 +87,15 @@
                 <span class="text-muted" v-else>Non assigné</span>
               </td>
               <td>
-                <!-- Si pas de dernière interaction, on affiche un message -->
+                <!-- Si pas de dernière interaction -->
                 <div v-if="!contact.lastInteractionAt" class="text-muted">
                   Jamais contacté
                 </div>
                 <!-- Sinon on affiche la vraie date -->
                 <div v-else class="interaction-date" :class="{ 'text-red font-bold': getDaysSince(contact.lastInteractionAt) > 30 }">
-                  {{ formatDate(contact.lastInteraction) }}
+                  {{ formatDate(contact.lastInteractionAt) }}
                   <div class="interaction-days">
-                    (il y a {{ getDaysSince(contact.lastInteraction) }} j)
+                    (il y a {{ getDaysSince(contact.lastInteractionAt) }} j)
                   </div>
                 </div>
               </td>
@@ -157,7 +156,6 @@ const sortAsc = ref(false);
 onMounted(async () => {
   try {
     const response = await api.get('/contacts');
-    // On prend les données réelles et brutes du backend, sans aucune simulation
     contacts.value = response.data;
   } catch (err) {
     error.value = "Impossible de charger les contacts. Vérifiez votre connexion.";
@@ -168,7 +166,6 @@ onMounted(async () => {
 });
 
 // --- LISTE DYNAMIQUE DES QUARTIERS ---
-// Extrait les adresses uniques de tous les contacts pour alimenter le menu déroulant
 const availableQuarters = computed(() => {
   const allAddresses = contacts.value.map(c => c.address).filter(a => a != null && a.trim() !== '');
   return [...new Set(allAddresses)].sort();
@@ -186,7 +183,6 @@ const filteredContacts = computed(() => {
     );
   }
 
-  // Utilisation de c.address au lieu de c.quarter
   if (selectedQuarter.value) {
     result = result.filter(c => c.address === selectedQuarter.value);
   }
@@ -218,22 +214,19 @@ const sortBy = (key) => {
   }
 };
 
-// Fonction utilitaire pour lire le format date de Spring Boot
+// Fonction universelle et robuste pour analyser les dates
 const parseDate = (dateVal) => {
   if (!dateVal) return null;
-  // Si Spring Boot envoie un tableau [année, mois, jour, heure, minute]
   if (Array.isArray(dateVal)) {
-    // Attention : en JavaScript, les mois commencent à 0 (Janvier = 0). On fait donc -1 sur le mois.
-    return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0);
+    return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0, dateVal[5] || 0);
   }
-  // Si c'est déjà une chaîne de texte standard
-  return new Date(dateVal);
+  const d = new Date(dateVal);
+  return isNaN(d.getTime()) ? null : d;
 };
 
 const getDaysSince = (dateVal) => {
-  if (!dateVal) return Infinity;
   const date = parseDate(dateVal);
-  if (isNaN(date)) return Infinity; // Sécurité supplémentaire
+  if (!date) return Infinity; 
   
   const now = new Date();
   const diffTime = Math.abs(now - date);
@@ -241,9 +234,8 @@ const getDaysSince = (dateVal) => {
 };
 
 const formatDate = (dateVal) => {
-  if (!dateVal) return '';
   const date = parseDate(dateVal);
-  if (isNaN(date)) return 'Date invalide';
+  if (!date) return 'Date invalide';
   
   const options = { day: '2-digit', month: 'short', year: 'numeric' };
   return date.toLocaleDateString('fr-FR', options);
@@ -253,14 +245,12 @@ const formatDate = (dateVal) => {
 const getStatusText = (contact) => {
   const daysInteraction = getDaysSince(contact.lastInteractionAt);
   
-  // Si le contact n'a aucune interaction enregistrée
   if (daysInteraction === Infinity) {
       const daysCreated = getDaysSince(contact.createdAt);
-      if (daysCreated <= 7) return 'Nouveau'; // Créé il y a moins de 7 jours
-      return 'À contacter'; // Créé il y a plus de 7 jours mais jamais contacté
+      if (daysCreated <= 7) return 'Nouveau'; 
+      return 'À contacter'; 
   }
 
-  // S'il a des interactions
   if (daysInteraction <= 14) return 'Actif';
   if (daysInteraction <= 30) return 'À relancer';
   return 'Perdu de vue';
@@ -282,7 +272,6 @@ const editContact = (id) => router.push(`/contacts/${id}/edit`);
 </script>
 
 <style scoped>
-/* Le CSS reste exactement le même qu'avant pour préserver ton design parfait */
 .contacts-container { display: flex; flex-direction: column; gap: 20px; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; }
 .page-title { color: #111827; margin: 0 0 4px 0; font-size: 1.8rem; }
@@ -310,7 +299,7 @@ const editContact = (id) => router.push(`/contacts/${id}/edit`);
 .text-muted { color: #9ca3af; font-style: italic; font-size: 0.9rem;}
 .font-bold { font-weight: bold; }
 .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
-.badge-blue { background-color: #dbeafe; color: #1e40af; } /* Pour les Nouveaux */
+.badge-blue { background-color: #dbeafe; color: #1e40af; } 
 .badge-green { background-color: #dcfce7; color: #166534; }
 .badge-yellow { background-color: #fef9c3; color: #854d0e; }
 .badge-red { background-color: #fee2e2; color: #991b1b; }
