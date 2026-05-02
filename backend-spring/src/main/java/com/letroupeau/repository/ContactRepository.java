@@ -12,6 +12,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     // MÉTHODE CRITIQUE : Permet de filtrer au niveau de la base de données 
     // pour s'assurer qu'un Leader ne récupère que les contacts de son équipe.
     List<Contact> findByTeamId(Long teamId);
-    long countByCreatedById(Long userId);
+    
     
 }

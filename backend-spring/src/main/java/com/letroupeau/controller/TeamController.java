@@ -51,21 +51,16 @@ public class TeamController {
         // 3. Transformation en DTO avec calcul des statistiques
         List<UserStatsDto> stats = usersToDisplay.stream().map(u -> {
             
-            // Note: Si votre Contact n'a pas de champ "createdBy", vous pouvez retourner 0 ici temporairement 
-            // ou adapter la requête pour compter par "teamId"
+            // ÉTANT DONNÉ que l'entité Contact est liée à une Team et non à un User spécifique,
+            // on ne peut pas compter individuellement les âmes suivies par membre pour le moment.
+            // On fixe à 0 pour éviter tout crash.
             long count = 0; 
-            try {
-                // Tente de compter si la méthode existe
-                count = contactRepository.countByCreatedById(u.getId());
-            } catch (Exception e) {
-                // Ignorer si la méthode n'est pas encore implémentée
-            }
             
             String teamName = (u.getTeam() != null) ? u.getTeam().getName() : "Aucune équipe";
             
             return new UserStatsDto(
                     u.getId(), 
-                    u.getFullName(), // CORRECTION : Utilisation de getFullName()
+                    u.getFullName(), 
                     u.getEmail(), 
                     u.getRole().toString(), 
                     teamName, 
