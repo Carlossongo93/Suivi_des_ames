@@ -2,6 +2,7 @@ package com.letroupeau.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "interactions")
@@ -22,10 +23,12 @@ public class Interaction {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contact_id", nullable = false)
+    @JsonIgnore
     private Contact contact;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", nullable = false)
+    @JsonIgnore
     private User createdBy;
 
     @Column(name = "created_at")
