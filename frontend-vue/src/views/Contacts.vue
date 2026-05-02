@@ -218,17 +218,35 @@ const sortBy = (key) => {
   }
 };
 
-const getDaysSince = (dateString) => {
-  if (!dateString) return Infinity;
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now - date);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+// Fonction utilitaire pour lire le format date de Spring Boot
+const parseDate = (dateVal) => {
+  if (!dateVal) return null;
+  // Si Spring Boot envoie un tableau [année, mois, jour, heure, minute]
+  if (Array.isArray(dateVal)) {
+    // Attention : en JavaScript, les mois commencent à 0 (Janvier = 0). On fait donc -1 sur le mois.
+    return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0);
+  }
+  // Si c'est déjà une chaîne de texte standard
+  return new Date(dateVal);
 };
 
-const formatDate = (dateString) => {
+const getDaysSince = (dateVal) => {
+  if (!dateVal) return Infinity;
+  const date = parseDate(dateVal);
+  if (isNaN(date)) return Infinity; // Sécurité supplémentaire
+  
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+};
+
+const formatDate = (dateVal) => {
+  if (!dateVal) return '';
+  const date = parseDate(dateVal);
+  if (isNaN(date)) return 'Date invalide';
+  
   const options = { day: '2-digit', month: 'short', year: 'numeric' };
-  return new Date(dateString).toLocaleDateString('fr-FR', options);
+  return date.toLocaleDateString('fr-FR', options);
 };
 
 // --- LOGIQUE MÉTIER DES STATUTS ---

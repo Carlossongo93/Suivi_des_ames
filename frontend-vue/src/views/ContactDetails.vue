@@ -49,11 +49,26 @@
         </div>
         </div>
         <div class="timeline-content">
-          <!-- État vide en attendant l'implémentation de la table Interactions -->
-          <div class="empty-state">
+          
+          <!-- S'il n'y a pas d'interactions -->
+          <div v-if="interactions.length === 0" class="empty-state">
             <span class="empty-icon">📅</span>
             <p>Aucune interaction enregistrée pour l'instant.</p>
             <span class="text-muted">Commencez le suivi en ajoutant une note.</span>
+          </div>
+
+          <!-- S'il y a des interactions -->
+          <div v-else class="interactions-list">
+            <div v-for="interaction in interactions" :key="interaction.id" class="interaction-item">
+              <div class="interaction-header">
+                <span class="interaction-type">{{ interaction.type }}</span>
+                <!-- Affiche la date, en utilisant interaction.createdAt ou interaction.date selon ce que le backend renvoie -->
+                <span class="interaction-date">{{ formatDateTime(interaction.createdAt || interaction.date) }}</span>
+              </div>
+              <div class="interaction-notes">
+                {{ interaction.notes }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -71,8 +86,9 @@ const showForm = ref(false); // Le fameux état qui manquait à l'appel !
 const currentContactId = ref(1); // L'ID du contact actuel
 
 const handleNewInteraction = (newInteractionData) => {
-  console.log("Interaction enregistrée avec succès !", newInteractionData);
-  // Ici, vous pouvez ajouter l'interaction à votre liste locale pour rafraîchir l'affichage
+  showForm.value = false; // Ferme la popup
+  // On ajoute la nouvelle interaction tout en haut de la liste
+  interactions.value.unshift(newInteractionData); 
 };
 
 const route = useRoute();
@@ -81,14 +97,20 @@ const router = useRouter();
 const contact = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
+const interactions = ref([]); // <-- Ajoutez cette ligne sous vos autres const ref()
 
 onMounted(async () => {
   try {
-    // Récupération du contact spécifique via l'ID dans l'URL
+    // 1. Récupération du contact
     const response = await api.get(`/contacts/${route.params.id}`);
     contact.value = response.data;
+    
+    // 2. Récupération de l'historique des interactions (NOUVEAU)
+    const interactionsResponse = await api.get(`/contacts/${route.params.id}/interactions`);
+    interactions.value = interactionsResponse.data;
+    
   } catch (err) {
-    error.value = "Impossible de charger les données du contact.";
+    error.value = "Impossible de charger les données.";
     console.error(err);
   } finally {
     isLoading.value = false;
@@ -98,10 +120,17 @@ onMounted(async () => {
 const goBack = () => router.push('/contacts');
 const goToEdit = () => router.push(`/contacts/${contact.value.id}/edit`);
 
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const options = { day: '2-digit', month: 'long', year: 'numeric' };
-  return new Date(dateString).toLocaleDateString('fr-FR', options);
+const parseDate = (dateVal) => {
+  if (!dateVal) return null;
+  if (Array.isArray(dateVal)) return new Date(dateVal[0], dateVal[1] - 1, dateVal[2], dateVal[3] || 0, dateVal[4] || 0);
+  return new Date(dateVal);
+};
+
+const formatDateTime = (dateVal) => {
+  const date = parseDate(dateVal);
+  if (!date || isNaN(date)) return '';
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) 
+       + ' à ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute:'2-digit' });
 };
 </script>
 
@@ -183,6 +212,12 @@ const formatDate = (dateString) => {
 .btn-icon:hover { border-color: #f59e0b; background-color: #fffbeb; }
 .loading-state, .error-state { padding: 40px; text-align: center; color: #6b7280; }
 .error-state { color: #e62222; }
+.interactions-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+.interaction-item { padding: 15px; border-left: 4px solid #1a8f2e; background: #f9fafb; border-radius: 4px; }
+.interaction-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+.interaction-type { font-weight: bold; color: #111827; }
+.interaction-date { color: #6b7280; font-size: 0.85rem; }
+.interaction-notes { color: #374151; line-height: 1.5; font-size: 0.95rem; white-space: pre-wrap; }
 
 @media (max-width: 768px) { .details-layout { grid-template-columns: 1fr; } }
 </style>
