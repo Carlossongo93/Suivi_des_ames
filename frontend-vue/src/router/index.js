@@ -9,6 +9,7 @@ import Contacts from '../views/Contacts.vue';
 import NewContact from '../views/NewContact.vue';
 import ContactDetails from '../views/ContactDetails.vue';
 import EditContact from '../views/EditContact.vue';
+import TeamDashboard from '../views/TeamDashboard.vue'; // NOUVEAU
 
 const routes = [
   {
@@ -49,6 +50,16 @@ const routes = [
         path: 'contacts/:id/edit',
         name: 'EditContact',
         component: EditContact
+      },
+      // --- NOUVELLE ROUTE SÉCURISÉE ---
+      {
+        path: 'team',
+        name: 'TeamDashboard',
+        component: TeamDashboard,
+        meta: { 
+          // Seuls ces rôles ont le droit d'accéder à cette page
+          allowedRoles: ['ADMIN', 'SUPERVISEUR', 'LEADER'] 
+        }
       }
     ]
   }
@@ -59,11 +70,22 @@ const router = createRouter({
   routes
 });
 
-// Gardien de navigation (Vérifie si l'utilisateur est connecté)
+// Gardien de navigation (Vérifie la connexion ET les rôles)
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
+  
   if (to.meta.requiresAuth && !authStore.token) {
     next('/login');
+  } else if (to.meta.allowedRoles) {
+    // Vérification RBAC (Contrôle d'accès basé sur le rôle)
+    // On suppose que le store Auth contient l'utilisateur et son rôle
+    const userRole = authStore.user?.role; 
+    
+    if (userRole && to.meta.allowedRoles.includes(userRole)) {
+      next(); // Autorisé
+    } else {
+      next('/dashboard'); // Bloqué -> retour à l'accueil
+    }
   } else {
     next();
   }

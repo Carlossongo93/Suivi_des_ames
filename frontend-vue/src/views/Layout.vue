@@ -34,7 +34,8 @@
           </router-link>
         </li>
 
-        <li v-if="isLeaderOrAdmin">
+        <!-- Le lien "Mon Équipe" n'est visible que pour LEADER, SUPERVISEUR, ou ADMIN -->
+        <li v-if="canViewTeam">
           <router-link to="/team" active-class="active">
             👥 Mon Équipe
           </router-link>
@@ -81,12 +82,15 @@ const displayRole = computed(() => {
   return userRole.value ? userRole.value.replace('ROLE_', '') : '';
 });
 
-const isLeaderOrAdmin = computed(() => ['ROLE_LEADER', 'ROLE_ADMIN'].includes(userRole.value));
+// Autorise l'accès au menu "Mon Équipe" pour ces 3 rôles
+const canViewTeam = computed(() => ['ROLE_LEADER', 'ROLE_SUPERVISEUR', 'ROLE_ADMIN'].includes(userRole.value));
 const isAdmin = computed(() => userRole.value === 'ROLE_ADMIN');
 
+// Détermine la couleur du badge en fonction du rôle
 const roleClass = computed(() => {
   if (isAdmin.value) return 'badge-admin';
-  if (isLeaderOrAdmin.value) return 'badge-leader';
+  if (userRole.value === 'ROLE_SUPERVISEUR') return 'badge-supervisor';
+  if (userRole.value === 'ROLE_LEADER') return 'badge-leader';
   return 'badge-member';
 });
 
@@ -158,10 +162,11 @@ const goToNewContact = () => {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-/* Rouge pour Admin, Orange pour Leader, Vert logo pour Membre */
+/* Couleurs des rôles */
 .badge-admin { background-color: #e62222; color: white; }
-.badge-leader { background-color: #f59e0b; color: white; }
-.badge-member { background-color: #1a8f2e; color: white; }
+.badge-supervisor { background-color: #f97316; color: white; } /* Orange vif */
+.badge-leader { background-color: #f59e0b; color: white; } /* Orange doux */
+.badge-member { background-color: #1a8f2e; color: white; } /* Vert */
 
 /* --- BOUTON NOUVEAU CONTACT --- */
 .sidebar-cta {
