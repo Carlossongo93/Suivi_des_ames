@@ -68,8 +68,8 @@
               <th @click="sortBy('address')" class="sortable">
                 Quartier <span v-if="sortKey === 'address'">{{ sortAsc ? '↑' : '↓' }}</span>
               </th>
-              <th @click="sortBy('lastInteraction')" class="sortable">
-                Dernière Interaction <span v-if="sortKey === 'lastInteraction'">{{ sortAsc ? '↑' : '↓' }}</span>
+              <th @click="sortBy('lastInteractionAt')" class="sortable">
+                Dernière Interaction <span v-if="sortKey === 'lastInteractionAt'">{{ sortAsc ? '↑' : '↓' }}</span>
               </th>
               <th>Statut</th>
               <th class="text-right">Actions</th>
@@ -89,11 +89,11 @@
               </td>
               <td>
                 <!-- Si pas de dernière interaction, on affiche un message -->
-                <div v-if="!contact.lastInteraction" class="text-muted">
+                <div v-if="!contact.lastInteractionAt" class="text-muted">
                   Jamais contacté
                 </div>
                 <!-- Sinon on affiche la vraie date -->
-                <div v-else class="interaction-date" :class="{ 'text-red font-bold': getDaysSince(contact.lastInteraction) > 30 }">
+                <div v-else class="interaction-date" :class="{ 'text-red font-bold': getDaysSince(contact.lastInteractionAt) > 30 }">
                   {{ formatDate(contact.lastInteraction) }}
                   <div class="interaction-days">
                     (il y a {{ getDaysSince(contact.lastInteraction) }} j)
@@ -233,7 +233,7 @@ const formatDate = (dateString) => {
 
 // --- LOGIQUE MÉTIER DES STATUTS ---
 const getStatusText = (contact) => {
-  const daysInteraction = getDaysSince(contact.lastInteraction);
+  const daysInteraction = getDaysSince(contact.lastInteractionAt);
   
   // Si le contact n'a aucune interaction enregistrée
   if (daysInteraction === Infinity) {
