@@ -31,7 +31,8 @@
             <tr v-for="member in teamMembers" :key="member.id">
               <td>
                 <div class="member-name">
-                  <strong>{{ member.lastName }}</strong> {{ member.firstName }}
+                  <!-- CORRECTION : Utilisation de member.fullName -->
+                  <strong>{{ member.fullName }}</strong>
                   <span class="member-email">{{ member.email }}</span>
                 </div>
               </td>
@@ -87,9 +88,9 @@ onMounted(async () => {
 
 // Esthétique des rôles
 const getRoleClass = (role) => {
-  if (role === 'ADMIN') return 'badge-purple';
-  if (role === 'SUPERVISEUR') return 'badge-orange';
-  if (role === 'LEADER') return 'badge-blue';
+  if (role === 'ROLE_ADMIN' || role === 'ADMIN') return 'badge-purple';
+  if (role === 'ROLE_SUPERVISEUR' || role === 'SUPERVISEUR') return 'badge-orange';
+  if (role === 'ROLE_LEADER' || role === 'LEADER') return 'badge-blue';
   return 'badge-gray'; // MEMBER
 };
 </script>
@@ -114,7 +115,7 @@ const getRoleClass = (role) => {
 .count-badge { background-color: #1a8f2e; color: white; padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 0.85rem; }
 
 /* Badges de Rôle */
-.role-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+.role-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 .badge-purple { background-color: #f3e8ff; color: #7e22ce; }
 .badge-orange { background-color: #ffedd5; color: #c2410c; }
 .badge-blue { background-color: #dbeafe; color: #1d4ed8; }

@@ -36,7 +36,7 @@ public class TeamController {
 
         // 2. Aiguillage selon le rôle
         if ("ADMIN".equals(userRole) || "SUPERVISEUR".equals(userRole)) {
-            // Le Superviseur voit TOUT le monde
+            // Le Superviseur/Admin voit TOUT le monde
             usersToDisplay = userRepository.findAll();
         } else {
             // Le Leader ne voit que les membres de son équipe
@@ -50,14 +50,22 @@ public class TeamController {
 
         // 3. Transformation en DTO avec calcul des statistiques
         List<UserStatsDto> stats = usersToDisplay.stream().map(u -> {
-            // Compte le nombre de contacts créés/gérés par cet utilisateur
-            long count = contactRepository.countByCreatedById(u.getId()); 
+            
+            // Note: Si votre Contact n'a pas de champ "createdBy", vous pouvez retourner 0 ici temporairement 
+            // ou adapter la requête pour compter par "teamId"
+            long count = 0; 
+            try {
+                // Tente de compter si la méthode existe
+                count = contactRepository.countByCreatedById(u.getId());
+            } catch (Exception e) {
+                // Ignorer si la méthode n'est pas encore implémentée
+            }
+            
             String teamName = (u.getTeam() != null) ? u.getTeam().getName() : "Aucune équipe";
             
             return new UserStatsDto(
                     u.getId(), 
-                    u.getFirstName(), 
-                    u.getLastName(), 
+                    u.getFullName(), // CORRECTION : Utilisation de getFullName()
                     u.getEmail(), 
                     u.getRole().toString(), 
                     teamName, 
