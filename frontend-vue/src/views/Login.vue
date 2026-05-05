@@ -7,9 +7,8 @@
         
         <!-- En-tête / Logo -->
         <div class="brand-header">
-          <div class="logo-circle">
-            <span class="logo-icon">🔥</span>
-          </div>
+          <!-- REMPLACEMENT DU LOGO ICI -->
+          <img src="../assets/Logo.png" alt="Logo de l'Église" class="church-logo" />
           <h1>Le Troupeau</h1>
         </div>
 
@@ -159,20 +158,15 @@ const handleLogin = async () => {
   margin-bottom: 24px;
 }
 
-.logo-circle {
-  width: 64px;
-  height: 64px;
-  background-color: #111827;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* NOUVEAUX STYLES POUR LE LOGO OFFICIEL */
+.church-logo {
+  width: 80px; /* Vous pouvez augmenter ou réduire cette valeur (ex: 100px) */
+  height: auto;
   margin-bottom: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.logo-icon {
-  font-size: 2rem;
+  object-fit: contain;
+  /* Décommentez les lignes ci-dessous si vous voulez que le logo soit dans un cercle parfait (idéal pour les logos carrés) */
+  /* border-radius: 50%; */
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
 .brand-header h1 {
