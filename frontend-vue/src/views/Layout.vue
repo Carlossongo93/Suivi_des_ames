@@ -4,7 +4,7 @@
     <nav class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <span class="logo-icon">🔥</span> 
+          <img src="../assets/Logo.png" alt="Logo de l'Église" class="church-logo" /> 
           <h2>Le Troupeau</h2>
         </div>
         <!-- Badge de rôle dynamique -->
