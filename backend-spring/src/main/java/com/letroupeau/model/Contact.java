@@ -21,12 +21,14 @@ public class Contact {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
+    @JsonIgnore
     private Team team;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "last_interaction_at")
+    @JsonIgnore
     private LocalDateTime lastInteractionAt;
 
     @PrePersist

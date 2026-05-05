@@ -122,7 +122,7 @@ const goToNewContact = () => {
 
 /* NOUVEAUX STYLES POUR LE LOGO OFFICIEL */
 .church-logo {
-  width: 60px; /* Vous pouvez augmenter ou réduire cette valeur (ex: 100px) */
+  width: 50px; /* Vous pouvez augmenter ou réduire cette valeur (ex: 100px) */
   height: auto;
   margin-bottom: 16px;
   object-fit: contain;
