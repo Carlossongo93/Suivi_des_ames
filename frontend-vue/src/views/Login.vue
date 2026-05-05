@@ -87,7 +87,7 @@
     <footer class="login-footer">
       <p>
         Développé par 
-        <a href="https://international-ia.tech" target="_blank" rel="noopener noreferrer" class="agency-link">
+        <a href="https://www.facebook.com/cerveau.engineering" target="_blank" rel="noopener noreferrer" class="agency-link">
           international-ia
         </a>
       </p>
