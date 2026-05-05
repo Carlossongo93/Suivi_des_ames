@@ -120,6 +120,17 @@ const goToNewContact = () => {
   overflow-x: hidden;
 }
 
+/* NOUVEAUX STYLES POUR LE LOGO OFFICIEL */
+.church-logo {
+  width: 60px; /* Vous pouvez augmenter ou réduire cette valeur (ex: 100px) */
+  height: auto;
+  margin-bottom: 16px;
+  object-fit: contain;
+  /* Décommentez les lignes ci-dessous si vous voulez que le logo soit dans un cercle parfait (idéal pour les logos carrés) */
+  /* border-radius: 50%; */
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+}
+
 /* --- BARRE LATÉRALE (SIDEBAR) --- */
 .sidebar {
   width: 260px;
