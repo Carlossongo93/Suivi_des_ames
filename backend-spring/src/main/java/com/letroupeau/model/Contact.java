@@ -1,6 +1,7 @@
 package com.letroupeau.model;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,7 +29,6 @@ public class Contact {
     private LocalDateTime createdAt;
 
     @Column(name = "last_interaction_at")
-    @JsonIgnore
     private LocalDateTime lastInteractionAt;
 
     @PrePersist
